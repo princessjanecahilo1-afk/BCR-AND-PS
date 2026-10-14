@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barangay Pinagturilan Concern Reporting System</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- 1. LOGIN SCREEN -->
+    <div id="login-screen" class="login-container">
+        <div class="login-card">
+            <div class="header-logo">
+                <i class="fa-solid fa-building-shield logo-icon"></i>
+                <h2>Barangay Pinagturilan</h2>
+                <p>Concern Reporting & Prioritization System</p>
+            </div>
+
+            <div class="demo-box">
+                <p><i class="fa-solid fa-circle-info"></i> Quick Demo Login:</p>
+                <div class="demo-buttons">
+                    <button type="button" onclick="loginAsDemo('resident')" class="btn btn-outline-primary">
+                        <i class="fa-solid fa-user"></i> Resident
+                    </button>
+                    <button type="button" onclick="loginAsDemo('official')" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-user-shield"></i> Official
+                    </button>
+                </div>
+            </div>
+
+            <div class="divider"><span>OR</span></div>
+
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="user-role">Account Type</label>
+                    <select id="user-role" class="form-control" required>
+                        <option value="resident">Resident</option>
+                        <option value="official">Barangay Official / Staff</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Full Name / Username</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter your name" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    Log In <i class="fa-solid fa-right-to-bracket"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. MAIN APP CONTAINER -->
+    <div id="app-container" class="app-container hidden">
+        <!-- TOP NAVBAR -->
+        <header class="navbar">
+            <div class="nav-brand">
+                <i class="fa-solid fa-building-shield"></i>
+                <span>Brgy. Pinagturilan</span>
+            </div>
+            <div class="nav-user">
+                <div class="user-info">
+                    <span id="display-user-name" class="user-name">Juan Dela Cruz</span>
+                    <span id="display-user-role" class="user-badge">Resident</span>
+                </div>
+                <button onclick="handleLogout()" class="btn-logout" title="Log Out">
+                    <i class="fa-solid fa-power-off"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <!-- RESIDENT VIEW -->
+            <main id="resident-view" class="view-section hidden">
+                <div class="nav-tabs">
+                    <button id="tab-btn-submit" class="tab-btn active" onclick="switchResidentTab('submit')">
+                        <i class="fa-solid fa-pen-to-square"></i> Submit New Report
+                    </button>
+                    <button id="tab-btn-community" class="tab-btn" onclick="switchResidentTab('community')">
+                        <i class="fa-solid fa-list-check"></i> Community Feed & Upvotes
+                    </button>
+                </div>
+
+                <!-- Submit Report Tab -->
+                <div id="tab-submit" class="tab-content active">
+                    <div class="card">
+                        <h3><i class="fa-solid fa-bullhorn"></i> Report a Barangay Concern</h3>
+                        <p class="subtitle">Fill out the details below to submit your issue directly to officials.</p>
+                        
+                        <form id="concern-form" onsubmit="submitConcern(event)">
+                            <div class="form-group">
+                                <label for="concern-category">Type of Concern *</label>
+                                <select id="concern-category" class="form-control" required>
+                                    <option value="">-- Select Category --</option>
+                                    <option value="Damaged Roads">Damaged Roads</option>
+                                    <option value="Lack of Streetlights">Lack of Streetlights</option>
+                                    <option value="Water Problem">Water Problem</option>
+                                    <option value="Flooding">Flooding</option>
+                                    <option value="Stray Animals">Stray Animals</option>
+                                    <option value="Noise Complaints">Noise Complaints</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="concern-location">Purok / Specific Location *</label>
+                                <input type="text" id="concern-location" class="form-control" placeholder="e.g. Purok 3, Near Elementary School" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="concern-description">Description of Problem *</label>
+                                <textarea id="concern-description" class="form-control" rows="4" placeholder="Describe the issue clearly..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fa-solid fa-paper-plane"></i> Submit Concern
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Community Feed Tab -->
+                <div id="tab-community" class="tab-content hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-users"></i> Reported Concerns in Pinagturilan</h3>
+                            <span class="subtext">Upvote concerns that also affect you or need urgent action.</span>
+                        </div>
+                        <div id="resident-feed-list" class="feed-list">
+                            <!-- Dynamic Content Inserted Here -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- OFFICIAL VIEW -->
+            <main id="official-view" class="view-section hidden">
+                <!-- Dashboard Summary Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-info">
+                            <span class="stat-label">Total Reports</span>
+                            <span id="stat-total" class="stat-value">0</span>
+                        </div>
+                        <i class="fa-solid fa-folder-open stat-icon"></i>
+                    </div>
+
+                    <div class="stat-card orange">
+                        <div class="stat-info">
+                            <span class="stat-label">Pending / Under Review</span>
+                            <span id="stat-pending" class="stat-value">0</span>
+                        </div>
+                        <i class="fa-solid fa-clock stat-icon"></i>
+                    </div>
+
+                    <div class="stat-card purple">
+                        <div class="stat-info">
+                            <span class="stat-label">In Progress</span>
+                            <span id="stat-progress" class="stat-value">0</span>
+                        </div>
+                        <i class="fa-solid fa-gears stat-icon"></i>
+                    </div>
+
+                    <div class="stat-card green">
+                        <div class="stat-info">
+                            <span class="stat-label">Resolved</span>
+                            <span id="stat-resolved" class="stat-value">0</span>
+                        </div>
+                        <i class="fa-solid fa-circle-check stat-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Management Panel -->
+                <div class="card">
+                    <div class="filter-header">
+                        <h3><i class="fa-solid fa-tasks"></i> Manage & Prioritize Concerns</h3>
+                        <div class="filter-options">
+                            <label for="filter-status"><i class="fa-solid fa-filter"></i> Filter:</label>
+                            <select id="filter-status" class="form-control-sm" onchange="renderOfficialFeed()">
+                                <option value="ALL">All Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Under Review">Under Review</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Resolved">Resolved</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="official-feed-list" class="feed-list">
+                        <!-- Dynamic Content Inserted Here -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- External JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
