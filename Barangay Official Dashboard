@@ -1,0 +1,73 @@
+// OFFICIAL DASHBOARD & METRICS
+function renderOfficialDashboard() {
+    const statTotal = document.getElementById('stat-total');
+    if (!statTotal) return;
+
+    // Update Stat Counters
+    statTotal.innerText = concerns.length;
+    document.getElementById('stat-pending').innerText = concerns.filter(c => c.status === 'Pending' || c.status === 'Under Review').length;
+    document.getElementById('stat-progress').innerText = concerns.filter(c => c.status === 'In Progress').length;
+    document.getElementById('stat-resolved').innerText = concerns.filter(c => c.status === 'Resolved').length;
+
+    renderOfficialFeed();
+}
+
+// RENDER OFFICIAL FEED WITH FILTERING & PRIORITIZATION
+function renderOfficialFeed() {
+    const container = document.getElementById('official-feed-list');
+    const filterDropdown = document.getElementById('filter-status');
+    if (!container || !filterDropdown) return;
+
+    const filterValue = filterDropdown.value;
+
+    let filtered = concerns;
+    if (filterValue !== 'ALL') {
+        filtered = concerns.filter(c => c.status === filterValue);
+    }
+
+    // Sort by priority (highest upvotes first)
+    filtered.sort((a, b) => b.upvotes - a.upvotes);
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty-state">No concerns match the selected filter.</div>`;
+        return;
+    }
+
+    container.innerHTML = filtered.map(item => `
+        <div class="concern-item">
+            <div class="upvote-box">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+                <span class="upvote-count">${item.upvotes}</span>
+                <span class="upvote-label">Priority</span>
+            </div>
+            <div class="concern-content">
+                <div class="concern-header">
+                    <span class="concern-title">${item.category}</span>
+                    <span class="badge ${getBadgeClass(item.status)}">${item.status}</span>
+                </div>
+                <div class="concern-meta">
+                    <span><i class="fa-solid fa-location-dot"></i> ${item.location}</span>
+                    <span><i class="fa-solid fa-user"></i> ${item.reportedBy}</span>
+                    <span><i class="fa-solid fa-calendar"></i> ${item.date}</span>
+                </div>
+                <p class="concern-body">${item.description}</p>
+                
+                <div class="official-actions">
+                    <span>Update Status:</span>
+                    <button class="btn-action" onclick="updateStatus(${item.id}, 'Under Review')">Under Review</button>
+                    <button class="btn-action" onclick="updateStatus(${item.id}, 'In Progress')">In Progress</button>
+                    <button class="btn-action" onclick="updateStatus(${item.id}, 'Resolved')">Resolved</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// UPDATE STATUS FUNCTION
+function updateStatus(id, newStatus) {
+    const item = concerns.find(c => c.id === id);
+    if (item) {
+        item.status = newStatus;
+        renderOfficialDashboard();
+    }
+}
